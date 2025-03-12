@@ -1,3 +1,6 @@
+using Event_Ease.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace Event_Ease
 {
     public class Program
@@ -8,6 +11,10 @@ namespace Event_Ease
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            //Inject db context
+            builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
 
             var app = builder.Build();
 
