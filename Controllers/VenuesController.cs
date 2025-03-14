@@ -2,6 +2,7 @@
 using Event_Ease.Models.Entities;
 using Event_Ease.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Event_Ease.Controllers
 {
@@ -37,6 +38,15 @@ namespace Event_Ease.Controllers
             await dbContext.SaveChangesAsync();
 
             return View();
+        }
+
+        [HttpGet]
+
+        public async Task<IActionResult> List()
+        {
+          var venues =  await dbContext.Venues.ToListAsync();
+           
+          return View(venues);
         }
     }
 }
