@@ -5,7 +5,7 @@
         public Guid BookingID { get; set; }
         public Guid EventID { get; set; }
         public Guid VenueID { get; set; }
-        public DateTime BookingDate { get; set; }
+        public DateTime BookingDate { get; set; } //Date when booking was made 
 
         // Navigation properties
         public Event Event { get; set; }
