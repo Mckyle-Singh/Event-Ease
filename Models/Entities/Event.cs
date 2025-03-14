@@ -4,8 +4,9 @@
     {
         public Guid EventID { get; set; } // Primary key
         public string EventName { get; set; } // Event name
-        public DateTime EventDate { get; set; } // Event date
-        public string Description { get; set; }
+        public DateTime EventStartDate { get; set; } // Event date
+        public DateTime EventEndDate { get; set; } // Event date
+        public string Description { get; set; }//Description of Event
 
         // Nullable foreign key for Venue
         // Navigation property (optional)
