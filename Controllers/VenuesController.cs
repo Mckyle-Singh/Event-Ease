@@ -48,5 +48,34 @@ namespace Event_Ease.Controllers
            
           return View(venues);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+           var venue = await dbContext.Venues.FindAsync(id);
+
+            return View(venue);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Venue viewModel)
+        {
+           var venue= await dbContext.Venues.FindAsync(viewModel.VenueID);
+
+            if(venue is not null)
+            {
+                venue.VenueName = viewModel.VenueName;
+                venue.Location = viewModel.Location;
+                venue.ImageUrl = viewModel.ImageUrl;
+                venue.Description = viewModel.Description;
+                venue.IsActive = viewModel.IsActive;
+                venue.Capacity = viewModel.Capacity;
+
+                await dbContext.SaveChangesAsync();
+            }
+
+            return RedirectToAction("List","Venues");
+        }
+
     }
 }
