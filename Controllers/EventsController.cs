@@ -3,6 +3,7 @@ using Event_Ease.Models.Entities;
 using Event_Ease.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace Event_Ease.Controllers
 {
@@ -53,6 +54,13 @@ namespace Event_Ease.Controllers
 
             return RedirectToAction("List", "Venues");
 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> List()
+        {
+            var UserEvents = await dbContext.Events.Include(e=>e.Venue).ToListAsync();
+            return View(UserEvents);
         }
     }
 }

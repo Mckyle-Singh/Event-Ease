@@ -1,0 +1,38 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model List< Event_Ease.Models.Entities.Event>
+
+<h1>All Events</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Event Name</th>
+            <th>Event Start Date</th>
+            <th>Event End Date</th>
+            <th>Venue</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var UserEvent in Model)
+        {
+            <tr>
+                <td>@UserEvent.EventName</td>
+                <td>@UserEvent.EventStartDate</td>
+                <td>@UserEvent.EventEndDate</td>
+                <td>@(UserEvent.Venue != null ? UserEvent.Venue.VenueName : "No Venue selected")</td>
+                <td>@UserEvent.Description</td>
+                <td>
+                   <a asp-controller="Events" asp-action="Edit" asp-route-id="@UserEvent.EventID" class="btn btn-primary">Edit</a>
+                    <form asp-controller="Events" asp-action="Delete" asp-route-id="@UserEvent.EventID" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>   
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
