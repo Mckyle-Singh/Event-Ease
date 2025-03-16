@@ -62,5 +62,50 @@ namespace Event_Ease.Controllers
             var UserEvents = await dbContext.Events.Include(e=>e.Venue).ToListAsync();
             return View(UserEvents);
         }
+
+        [HttpGet]
+        public async Task<IActionResult>Edit(Guid id)
+        {
+            var UserEvent = await dbContext.Events.FindAsync(id);
+            // Pass the list of venues to the ViewBag
+            ViewBag.Venues = dbContext.Venues.Select(v => new SelectListItem
+            {
+                Value = v.VenueID.ToString(),
+                Text = v.VenueName
+            }).ToList();
+            return View(UserEvent);
+        }
+
+        public async Task<IActionResult> Edit(Event viewModel)
+        {
+            var UserEvent = await dbContext.Events.FindAsync(viewModel.EventID);
+            if (UserEvent is not null)
+            {
+                UserEvent.EventName = viewModel.EventName;
+                UserEvent.EventStartDate = viewModel.EventStartDate;
+                UserEvent.EventEndDate = viewModel.EventEndDate;
+                UserEvent.Description = viewModel.Description;
+                UserEvent.VenueID = viewModel.VenueID; // Update the venue
+
+                // Save changes to the database
+                await dbContext.SaveChangesAsync();
+
+            }
+            return RedirectToAction("List", "Events");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var UserEvent = await dbContext.Events.FindAsync(id);
+            if (UserEvent != null)
+            {
+                dbContext.Events.Remove(UserEvent);
+                await dbContext.SaveChangesAsync();
+            }
+
+            return RedirectToAction("List", "Events");
+        }
+
     }
 }
