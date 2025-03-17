@@ -118,5 +118,18 @@ namespace Event_Ease.Controllers
         }
 
 
+        [HttpPost]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var booking = await dbContext.Bookings.FindAsync(id);
+            if (booking != null)
+            {
+                dbContext.Bookings.Remove(booking);
+                await dbContext.SaveChangesAsync();
+            }
+
+            return RedirectToAction("List", "Bookings");
+        }
+
     }
 }
