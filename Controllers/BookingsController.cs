@@ -1,4 +1,5 @@
 ﻿using Event_Ease.Data;
+using Event_Ease.Models.Entities;
 using Event_Ease.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -34,5 +35,49 @@ namespace Event_Ease.Controllers
                 };
              return View(viewModel);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Add(AddBookingViewModel viewModel)
+        {
+            // Fetch the event to retrieve the linked VenueID
+            var eventEntity = await dbContext.Events
+                .Include(e => e.Venue)
+                .FirstOrDefaultAsync(e => e.EventID == viewModel.EventID);
+
+            if (eventEntity == null || eventEntity.Venue == null)
+            {
+                // Handle the case where the event or venue is invalid
+                ModelState.AddModelError("", "Invalid event or venue selection.");
+
+                // Reload events dropdown to re-display the form properly
+                viewModel.Events = await dbContext.Events
+                    .Include(e => e.Venue)
+                    .Where(e => e.Venue != null)
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.EventID.ToString(),
+                        Text = e.EventName
+                    }).ToListAsync();
+
+                return View(viewModel);
+            }
+
+            // Map data to Booking entity
+            var booking = new Booking
+            {
+                BookingDate = viewModel.BookingDate,
+                EventID = viewModel.EventID,
+                VenueID = eventEntity.Venue.VenueID // Assign VenueID from the event
+            };
+
+            await dbContext.Bookings.AddAsync(booking);
+
+            await dbContext.SaveChangesAsync();
+
+            return RedirectToAction("List", "Events");
+        }
+
+
+        
     }
 }
