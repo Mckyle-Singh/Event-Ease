@@ -77,7 +77,13 @@ namespace Event_Ease.Controllers
             return RedirectToAction("List", "Events");
         }
 
+        [HttpGet]
 
+        public async Task<IActionResult> List()
+        {
+            var bookings = await dbContext.Bookings.Include(e=> e.Event).ThenInclude(v=>v.Venue).ToListAsync();
+            return View(bookings);
+        }
         
     }
 }
