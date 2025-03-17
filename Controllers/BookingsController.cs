@@ -84,6 +84,39 @@ namespace Event_Ease.Controllers
             var bookings = await dbContext.Bookings.Include(e=> e.Event).ThenInclude(v=>v.Venue).ToListAsync();
             return View(bookings);
         }
-        
+
+
+        [HttpGet] 
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var Booking = await dbContext.Bookings.FindAsync(id);
+
+            ViewBag.Events = dbContext.Events.Select(e => new SelectListItem
+            {
+                Value=e.EventID.ToString(),
+                Text = e.EventName
+            }).ToList();
+
+            return View(Booking);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(Booking viewModel)
+        {
+            var booking = await dbContext.Bookings.FindAsync(viewModel.BookingID);
+            if (booking is not null)
+            {
+                booking.BookingDate = viewModel.BookingDate;
+                booking.EventID = viewModel.EventID; // Update the event
+
+                // Save changes to the database
+                await dbContext.SaveChangesAsync();
+
+            }
+            return RedirectToAction("List", "Bookings");
+        }
+
+
     }
 }
