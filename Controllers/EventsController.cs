@@ -39,17 +39,41 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddEventViewModel viewModel)
         {
+
+            // Validation logic
+            if (viewModel.EventEndDate <= viewModel.EventStartDate)
+            {
+                ModelState.AddModelError("EventEndDate", "End date must be eeaqual to or after the start date.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // Reload venues list in case of validation failure
+                viewModel.Venues = dbContext.Venues
+                    .Where(v => !dbContext.Events.Any(e =>
+                        e.VenueID == v.VenueID &&
+                        (e.EventStartDate <= DateTime.Today && e.EventEndDate >= DateTime.Today)))
+                    .Select(v => new SelectListItem
+                    {
+                        Value = v.VenueID.ToString(),
+                        Text = v.VenueName
+                    })
+                    .ToList();
+
+                return View(viewModel);
+            }
+
+            // Save the event if validation passes
             var Userevent = new Event
             {
                 EventName = viewModel.EventName,
                 EventStartDate = viewModel.EventStartDate,
                 EventEndDate = viewModel.EventEndDate,
                 Description = viewModel.Description,
-                VenueID = viewModel.VenueID, 
-
+                VenueID = viewModel.VenueID,
             };
-            await dbContext.Events.AddAsync(Userevent);
 
+            await dbContext.Events.AddAsync(Userevent);
             await dbContext.SaveChangesAsync();
 
             return RedirectToAction("List", "Venues");
