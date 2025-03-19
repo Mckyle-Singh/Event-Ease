@@ -16,6 +16,7 @@ namespace Event_Ease.Controllers
         {
             this.dbContext = dbContext;
         }
+
         [HttpGet]
         public IActionResult Add()
         {
@@ -39,6 +40,20 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddBookingViewModel viewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                // Reload events dropdown for the form
+                viewModel.Events = await dbContext.Events
+                    .Include(e => e.Venue)
+                    .Where(e => e.Venue != null)
+                    .Select(e => new SelectListItem
+                    {
+                        Value = e.EventID.ToString(),
+                        Text = e.EventName
+                    }).ToListAsync();
+
+                return View(viewModel);
+            }
             // Fetch the event to retrieve the linked VenueID
             var eventEntity = await dbContext.Events
                 .Include(e => e.Venue)
@@ -78,7 +93,6 @@ namespace Event_Ease.Controllers
         }
 
         [HttpGet]
-
         public async Task<IActionResult> List()
         {
             var bookings = await dbContext.Bookings.Include(e=> e.Event).ThenInclude(v=>v.Venue).ToListAsync();
