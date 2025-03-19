@@ -6,6 +6,13 @@
 
 @model List<Event_Ease.Models.Entities.Venue>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successMessage">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 <h1>All venues</h1>
 
 <table class="table">
