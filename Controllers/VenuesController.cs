@@ -41,7 +41,6 @@ namespace Event_Ease.Controllers
         }
 
         [HttpGet]
-
         public async Task<IActionResult> List()
         {
           var venues =  await dbContext.Venues.ToListAsync();
