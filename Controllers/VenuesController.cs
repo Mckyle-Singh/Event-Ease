@@ -37,7 +37,7 @@ namespace Event_Ease.Controllers
             await dbContext.Venues.AddAsync(venue);
             await dbContext.SaveChangesAsync();
 
-            return View();
+            return RedirectToAction("List", "Venues");
         }
 
         [HttpGet]
