@@ -42,13 +42,11 @@ namespace Event_Ease.Controllers
 
             await dbContext.Venues.AddAsync(venue);
             await dbContext.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Venue added successfully!";
-            return RedirectToAction("List","Venues"); 
+            
+            return RedirectToAction("List", "Venues");
         }
 
         [HttpGet]
-
         public async Task<IActionResult> List()
         {
           var venues =  await dbContext.Venues.ToListAsync();

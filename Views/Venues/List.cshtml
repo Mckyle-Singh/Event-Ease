@@ -1,48 +1,66 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model List<Event_Ease.Models.Entities.Venue>
 
-@model List<Event_Ease.Models.Entities.Venue>
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert" id="successMessage">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <!-- Add Jumbotron Section -->
+    <div class="jumbotron jumbotron-fluid text-center bg-light p-4 mb-4">
+        <div class="container">
+            <h1 class="display-4">All Venues</h1>
+            <p class="lead">Explore the perfect venues tailored to your needs</p>
+        </div>
     </div>
-}
-<h1>All venues</h1>
+   
+<!-- Filter Section -->
+<div class="container mb-4">
+    <div class="row">
+        <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Search by name">
+        </div>
+        <div class="col-md-4">
+            <select class="form-control">
+                <option selected disabled>Filter by location</option>
+                <option>New York</option>
+                <option>Los Angeles</option>
+                <option>Chicago</option>
+                <option>Miami</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <select class="form-control">
+                <option selected disabled>Filter by capacity</option>
+                <option>1-100</option>
+                <option>101-500</option>
+                <option>501-1000</option>
+                <option>1001+</option>
+            </select>
+        </div>
+    </div>
+</div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Venue Name</th>
-            <th>Venue location</th>
-            <th>Venue Capacity</th>
-            <th>Venue Description</th>
-            <th>Venue Image</th>
-            <th>Active</th>
-        </tr>
-    </thead>
-    <tbody>
+<!-- Card Section -->
+<div class="container">
+    <div class="row">
         @foreach (var venue in Model)
         {
-            <tr>
-                <td>@venue.VenueName</td>
-                <td>@venue.Location</td>
-                <td>@venue.Capacity</td>
-                <td>@venue.Description</td>
-                <td>@venue.ImageUrl</td>
-                <td>@venue.IsActive</td>
-                <td>
-                    <a asp-controller="Venues" asp-action="Edit" asp-route-id="@venue.VenueID" class="btn btn-primary">Edit</a>
-                    <form asp-controller="Venues" asp-action="Delete" asp-route-id="@venue.VenueID" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </td>
-            </tr>
+            <div class="col-md-4 mb-4 d-flex align-items-stretch">
+                <div class="card" style="height: 100%; width: 100%;">
+                    <img class="card-img-top" src="@venue.ImageUrl" alt="@venue.VenueName" style="height: 200px; object-fit: cover;">
+
+                    <div class="card-body">
+                        <h5 class="card-title">@venue.VenueName</h5>
+                        <p class="card-text">
+                            <strong>Location:</strong> @venue.Location<br>
+                            <strong>Capacity:</strong> @venue.Capacity<br>
+                            <strong>Description:</strong> @venue.Description
+                        </p>
+                    </div>
+
+                    <div class="card-footer">
+                        <a asp-controller="Venues" asp-action="Edit" asp-route-id="@venue.VenueID" class="btn btn-primary">Edit</a>
+                        <form asp-controller="Venues" asp-action="Delete" asp-route-id="@venue.VenueID" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+</div>
