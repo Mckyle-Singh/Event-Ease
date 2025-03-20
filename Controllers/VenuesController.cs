@@ -24,6 +24,12 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddVenueViewModel viewModel)
         {
+            if (!ModelState.IsValid)
+            {
+                // Return the view with the validation errors
+                return View(viewModel);
+            }
+
             var venue = new Venue
             {
                 VenueName = viewModel.VenueName,
@@ -36,7 +42,7 @@ namespace Event_Ease.Controllers
 
             await dbContext.Venues.AddAsync(venue);
             await dbContext.SaveChangesAsync();
-
+            
             return RedirectToAction("List", "Venues");
         }
 
