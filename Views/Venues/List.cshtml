@@ -3,7 +3,6 @@
 @model List<Event_Ease.Models.Entities.Venue>
 
 <!-- Add Jumbotron Section -->
-
 <div class="jumbotron jumbotron-fluid text-center bg-light p-4 mb-4">
     <div class="container">
         <h1 class="display-4">All Venues</h1>
@@ -45,10 +44,8 @@
         {
             <div class="col-md-4 mb-4 d-flex align-items-stretch">
                 <div class="card" style="height: 100%; width: 100%;">
-                    <!-- Card Image with Consistent Dimensions -->
                     <img class="card-img-top" src="@venue.ImageUrl" alt="@venue.VenueName" style="height: 200px; object-fit: cover;">
 
-                    <!-- Card Body -->
                     <div class="card-body">
                         <h5 class="card-title">@venue.VenueName</h5>
                         <p class="card-text">
@@ -58,7 +55,6 @@
                         </p>
                     </div>
 
-                    <!-- Card Footer with Buttons -->
                     <div class="card-footer">
                         <a asp-controller="Venues" asp-action="Edit" asp-route-id="@venue.VenueID" class="btn btn-primary">Edit</a>
                         <form asp-controller="Venues" asp-action="Delete" asp-route-id="@venue.VenueID" method="post" style="display:inline;">
@@ -70,4 +66,3 @@
         }
     </div>
 </div>
-
