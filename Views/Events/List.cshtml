@@ -6,33 +6,43 @@
 
 @model List< Event_Ease.Models.Entities.Event>
 
-<h1>All Events</h1>
-<table class="table">
-    <thead>
-        <tr>
-            <th>Event Name</th>
-            <th>Event Start Date</th>
-            <th>Event End Date</th>
-            <th>Venue</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var UserEvent in Model)
-        {
+<!-- Add Jumbotron Section -->
+<div class="jumbotron jumbotron-fluid text-center bg-light p-4 mb-4">
+    <div class="container">
+        <h1 class="display-4">All Venues</h1>
+        <p class="lead">Explore the perfect venues tailored to your needs</p>
+    </div>
+</div>
+
+<div class="table-responsive shadow rounded">
+    <table class="table table-hover table-bordered align-middle text-center">
+        <thead class="table-dark">
             <tr>
-                <td>@UserEvent.EventName</td>
-                <td>@UserEvent.EventStartDate</td>
-                <td>@UserEvent.EventEndDate</td>
-                <td>@(UserEvent.Venue != null ? UserEvent.Venue.VenueName : "No Venue selected")</td>
-                <td>@UserEvent.Description</td>
-                <td>
-                   <a asp-controller="Events" asp-action="Edit" asp-route-id="@UserEvent.EventID" class="btn btn-primary">Edit</a>
-                    <form asp-controller="Events" asp-action="Delete" asp-route-id="@UserEvent.EventID" method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>   
-                </td>
+                <th scope="col">Event Name</th>
+                <th scope="col">Event Start Date</th>
+                <th scope="col">Event End Date</th>
+                <th scope="col">Venue</th>
+                <th scope="col">Description</th>
+                <th scope="col">Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var UserEvent in Model)
+            {
+                <tr>
+                    <td>@UserEvent.EventName</td>
+                    <td>@UserEvent.EventStartDate.ToString("yyyy-MM-dd")</td>
+                    <td>@UserEvent.EventEndDate.ToString("yyyy-MM-dd")</td>
+                    <td>@(UserEvent.Venue != null ? UserEvent.Venue.VenueName : "No Venue Selected")</td>
+                    <td>@UserEvent.Description</td>
+                    <td>
+                        <a asp-controller="Events" asp-action="Edit" asp-route-id="@UserEvent.EventID" class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                        <form asp-controller="Events" asp-action="Delete" asp-route-id="@UserEvent.EventID" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
