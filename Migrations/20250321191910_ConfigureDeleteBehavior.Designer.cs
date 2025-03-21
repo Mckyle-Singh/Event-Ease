@@ -4,6 +4,7 @@ using Event_Ease.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Event_Ease.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250321191910_ConfigureDeleteBehavior")]
+    partial class ConfigureDeleteBehavior
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,15 +115,15 @@ namespace Event_Ease.Migrations
             modelBuilder.Entity("Event_Ease.Models.Entities.Booking", b =>
                 {
                     b.HasOne("Event_Ease.Models.Entities.Event", "Event")
-                        .WithMany("Bookings")
+                        .WithMany()
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Event_Ease.Models.Entities.Venue", "Venue")
-                        .WithMany("Bookings")
+                        .WithMany()
                         .HasForeignKey("VenueID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Event");
@@ -138,15 +141,8 @@ namespace Event_Ease.Migrations
                     b.Navigation("Venue");
                 });
 
-            modelBuilder.Entity("Event_Ease.Models.Entities.Event", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
             modelBuilder.Entity("Event_Ease.Models.Entities.Venue", b =>
                 {
-                    b.Navigation("Bookings");
-
                     b.Navigation("Events");
                 });
 #pragma warning restore 612, 618

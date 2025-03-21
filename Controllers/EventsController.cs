@@ -95,13 +95,30 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var UserEvent = await dbContext.Events.FindAsync(id);
-            if (UserEvent != null)
+            // Find the event and include related bookings
+            var eventItem = await dbContext.Events
+                .Include(e => e.Bookings) // Include bookings for validation
+                .FirstOrDefaultAsync(e => e.EventID == id);
+
+            // Check if the event exists
+            if (eventItem == null)
             {
-                dbContext.Events.Remove(UserEvent);
-                await dbContext.SaveChangesAsync();
+                TempData["ErrorMessage"] = "Event not found.";
+                return RedirectToAction("List", "Events");
             }
 
+            // Check if the event has active bookings
+            if (eventItem.Bookings.Any())
+            {
+                TempData["ErrorMessage"] = "Cannot delete an event linked to active bookings.";
+                return RedirectToAction("List", "Events");
+            }
+
+            // Proceed with deletion if no bookings are linked
+            dbContext.Events.Remove(eventItem);
+            await dbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Event successfully deleted.";
             return RedirectToAction("List", "Events");
         }
 

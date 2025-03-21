@@ -10,7 +10,12 @@
 
         // Nullable foreign key for Venue
         // Navigation property (optional)
+
         public Guid? VenueID { get; set; }
-        public Venue? Venue { get; set; } 
+        public Venue? Venue { get; set; }
+
+        // Navigation property for related bookings
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }
+
