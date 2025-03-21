@@ -85,14 +85,30 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var venue = await dbContext.Venues.FindAsync(id);
-            if (venue is not null)
-            { 
-              dbContext.Remove(venue);
-              await dbContext.SaveChangesAsync();
+            var venue = await dbContext.Venues
+        .Include(v => v.Bookings) // Ensure Bookings are included in the query
+        .FirstOrDefaultAsync(v => v.VenueID == id);
+
+            // Check if venue is null
+            if (venue == null)
+            {
+                TempData["ErrorMessage"] = "Venue not found.";
+                return RedirectToAction("List", "Venues"); // Redirect back to the list view
             }
 
-            return RedirectToAction("List", "Venues");
+            // Check if venue has active bookings
+            if (venue.Bookings.Any())
+            {
+                TempData["ErrorMessage"] = "Cannot delete a venue linked to active bookings.";
+                return RedirectToAction("List", "Venues"); // Redirect back to the list view
+            }
+
+            // Proceed with deletion
+            dbContext.Venues.Remove(venue);
+            await dbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Venue successfully deleted.";
+            return RedirectToAction("List", "Venues"); // Redirect back to the list view
         }
 
     }

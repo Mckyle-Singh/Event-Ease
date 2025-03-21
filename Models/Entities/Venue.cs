@@ -14,5 +14,9 @@
 
         // Navigation property for related events
         public ICollection<Event> Events { get; set; } = new List<Event>();
+
+        // Navigation property for related bookings
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
 }
+
