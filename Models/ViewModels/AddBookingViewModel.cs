@@ -13,6 +13,8 @@ namespace Event_Ease.Models.ViewModels
             // Dropdown lists
             public List<SelectListItem> Events { get; set; } = new List<SelectListItem>();
             public List<SelectListItem> Venues { get; set; } = new List<SelectListItem>();
+
+
         
     }
 }

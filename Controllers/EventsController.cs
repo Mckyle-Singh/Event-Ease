@@ -28,6 +28,8 @@ namespace Event_Ease.Controllers
                     Text = v.VenueName
                 }).ToList()
              };
+
+
             return View(viewModel);
         }
 

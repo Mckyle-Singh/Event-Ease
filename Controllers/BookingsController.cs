@@ -29,12 +29,14 @@ namespace Event_Ease.Controllers
                 Text = e.EventName
             }).ToList();
 
-                var viewModel = new AddBookingViewModel
-                {
-                    BookingDate = DateTime.Today, // Optional default value
-                    Events = events // Populate events dropdown
-                };
-             return View(viewModel);
+            var viewModel = new AddBookingViewModel
+            {
+                BookingDate = DateTime.Today, // Optional default value
+                Events = events // Populate events dropdown
+            };
+
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -89,7 +91,7 @@ namespace Event_Ease.Controllers
 
             await dbContext.SaveChangesAsync();
 
-            return RedirectToAction("List", "Events");
+            return RedirectToAction("List", "Bookings");
         }
 
         [HttpGet]
