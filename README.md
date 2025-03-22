@@ -22,6 +22,19 @@ The **Event Booking Web App** is a modern platform designed to streamline event 
 ---
 
 ## 📂 Installation and Setup
+Ensure you have the following installed:
+- [.NET 8](https://dotnet.microsoft.com/download)
+- A text editor like [Visual Studio](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/)
+- Access to the database connection details(SQL Server)
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/event-booking-web-app.git
+
+2. Ensure you have the following Nuget Packages Installed
+   - Microsoft.EntityFrameworkCore.SqlServer   v9.0.3
+   - Microsoft.EntityFrameworkCore.Tools       v9.0.3
+
+3. Replace the connection string in the appsettings.json with your own connection string 
+
+4. Run "Update-Database" in the package manager console

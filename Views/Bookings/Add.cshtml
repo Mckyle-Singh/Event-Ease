@@ -1,0 +1,40 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model Event_Ease.Models.ViewModels.AddBookingViewModel
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+</head>
+
+<div class="container mt-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 40rem;">
+        <div class="card-header bg-dark text-white text-center">
+            <h4 class="mb-0">Book an Event</h4>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div class="form-group mb-4">
+                    <label for="EventID" class="form-label">Select Event:</label>
+                    <select asp-for="EventID" asp-items="Model.Events" class="form-control">
+                        <option value="">-- Select an Event --</option>
+                    </select>
+                    <span asp-validation-for="EventID" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-4">
+                    <label for="BookingDate" class="form-label">Booking Date:</label>
+                    <input asp-for="BookingDate" type="date" class="form-control" />
+                </div>
+                <div class="form-floating text-center mt-4">
+                    <button type="submit" class="btn btn-secondary" style="background-color: #6c757d; width: 150px;">Confirm Booking</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+

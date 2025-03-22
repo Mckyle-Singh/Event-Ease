@@ -11,12 +11,79 @@ html {
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
-
-html {
-  position: relative;
-  min-height: 100%;
+.carousel {
+    margin-bottom: 30px; /* Adjust this value as needed */
 }
 
-body {
-  margin-bottom: 60px;
+/* Carousel Items */
+.carousel-item {
+    height: 400px; /* Reduced height for a rectangular shape */
+    width: 100%; /* Full width of the container */
+    margin-top: 30px;
+}
+
+
+
+/* Carousel Captions */
+.carousel-item .carousel-caption {
+    position: absolute;
+    bottom: 15%; /* Adjusts position for better spacing */
+    background: rgba(0, 0, 0, 0.7); /* Slightly darker background for contrast */
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    max-width: 80%; /* Ensures captions don't overflow */
+}
+
+.carousel-item h2 a {
+    color: white;
+    text-decoration: none;
+    font-size: 32px; /* Slightly larger for better visibility */
+}
+
+.carousel-item p {
+    font-size: 18px; /* Increased font size for better readability */
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+    bottom: 20px; /* Adjusted to move closer to the bottom */
+}
+
+.carousel-indicators button {
+    background-color: rgba(255, 255, 255, 0.7); /* Subtle white with transparency */
+    width: 12px;
+    height: 12px;
+    border-radius: 50%; /* Makes indicators circular */
+    border: none;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .carousel-item {
+        height: 400px; /* Reduces size for smaller screens */
+    }
+
+        .carousel-item .carousel-caption {
+            bottom: 10%;
+            padding: 15px;
+            font-size: 14px;
+        }
+
+        .carousel-item h2 a {
+            font-size: 24px;
+        }
+
+        .carousel-item p {
+            font-size: 14px;
+        }
+}
+
+.did-you-know a {
+    color: inherit; /* Makes the link inherit surrounding color */
+    text-decoration: none; /* Removes underline */
+    pointer-events: none; /* Disables link functionality */
+    cursor: default; /* Changes the cursor to default */
+    margin-top: 30px;
 }
