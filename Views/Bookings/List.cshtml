@@ -6,68 +6,104 @@
 
 @model List< Event_Ease.Models.Entities.Booking>
 
-<!-- Add Jumbotron Section -->
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Jumbotron Section -->
 <div class="jumbotron jumbotron-fluid text-center bg-light p-4 mb-4">
     <div class="container">
         <h1 class="display-4">All Bookings</h1>
         <p class="lead">Explore the perfect venues tailored to your needs</p>
     </div>
 </div>
+
 <!-- Filter Section -->
-<div class="container mb-4">
-    <div class="row">
-        <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="Search by name">
+<div class="container mb-4 p-3 shadow rounded bg-light">
+    <form method="get">
+        @{
+            var selectedVenueId = Context.Request.Query["venueId"];
+            var selectedEventName = Context.Request.Query["searchQuery"];
+            var selectedBookingDate = Context.Request.Query["bookingDate"];
+        }
+        <div class="row justify-content-center g-3">
+            <div class="col-md-4">
+                <input type="text" name="searchQuery" class="form-control"
+                       placeholder="Search Event Name" value="@selectedEventName">
+            </div>
+            <div class="col-md-3">
+                <select name="venueId" class="form-select">
+                    <option value="">All Venues</option>
+                    @foreach (var venue in ViewBag.Venues)
+                    {
+                        <option value="@venue.Value" selected="@(selectedVenueId == venue.Value.ToString() ? "selected" : null)">
+                            @venue.Text
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <div class="form-floating">
+                    <input type="date" name="bookingDate" id="bookingDate" class="form-control"
+                           value="@selectedBookingDate">
+                    <label for="bookingDate">Booking Date</label>
+                </div>
+            </div>
+
+            <div class="col-md-12 d-flex justify-content-start gap-2 mt-3">
+                <button type="submit" class="btn btn-primary px-4">Apply Filters</button>
+                <a href="/Bookings/List" class="btn btn-outline-secondary px-4">Clear Filters</a>
+            </div>
         </div>
-        <div class="col-md-4">
-            <select class="form-control">
-                <option selected disabled>Filter by location</option>
-                <option>New York</option>
-                <option>Los Angeles</option>
-                <option>Chicago</option>
-                <option>Miami</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <select class="form-control">
-                <option selected disabled>Filter by capacity</option>
-                <option>1-100</option>
-                <option>101-500</option>
-                <option>501-1000</option>
-                <option>1001+</option>
-            </select>
-        </div>
-    </div>
+    </form>
 </div>
-<div class="table-responsive shadow rounded">
-    <table class="table table-hover table-bordered align-middle text-center">
-        <thead class="table-dark">
-            <tr>
-                <th>Event Name</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Venue</th>
-                <th>Date of booking</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var Bookings in Model)
-            {
+
+<!-- Booking Listing Table -->
+<div class="container mt-3">
+    <div class="table-responsive shadow rounded bg-white p-3">
+        <table class="table table-hover table-bordered align-middle text-center">
+            <thead class="table-dark">
                 <tr>
-                    <td>@Bookings.Event.EventName</td>
-                    <td>@Bookings.Event.EventStartDate</td>
-                    <td>@Bookings.Event.EventEndDate</td>
-                    <td>@(Bookings.Venue != null ? Bookings.Venue.VenueName : "No Venue selected")</td>
-                    <td>@Bookings.BookingDate</td>
-                    <td>
-                        <a asp-controller="Bookings" asp-action="Edit" asp-route-id="@Bookings.BookingID" class="btn btn-primary">Edit</a>
-                        <form asp-controller="Bookings" asp-action="Delete" asp-route-id="@Bookings.BookingID" method="post" style="display:inline;">
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
+                    <th scope="col">Event Name</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Venue</th>
+                    <th scope="col">Booking Date</th>
+                    <th scope="col">Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var Booking in Model)
+                {
+                    <tr>
+                        <td>@Booking.Event.EventName</td>
+                        <td>@Booking.Event.EventStartDate.ToString("yyyy-MM-dd")</td>
+                        <td>@Booking.Event.EventEndDate.ToString("yyyy-MM-dd")</td>
+                        <td>@(Booking.Event.Venue != null ? Booking.Event.Venue.VenueName : "No Venue Selected")</td>
+                        <td>@Booking.BookingDate.ToString("yyyy-MM-dd")</td>
+                        <td>
+                            <a asp-controller="Bookings" asp-action="Edit" asp-route-id="@Booking.BookingID"
+                               class="btn btn-sm btn-outline-primary me-1">Edit</a>
+                            <form asp-controller="Bookings" asp-action="Delete" asp-route-id="@Booking.BookingID"
+                                  method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

@@ -56,13 +56,19 @@
             </div>
 
             <div class="col-md-3">
-                <input type="date" name="startDate" class="form-control"
-                       value="@Context.Request.Query["startDate"]">
+                <div class="form-floating">
+                    <input type="date" name="startDate" id="startDate" class="form-control"
+                           value="@Context.Request.Query["startDate"]">
+                    <label for="startDate">Start Date</label>
+                </div>
             </div>
 
             <div class="col-md-3">
-                <input type="date" name="endDate" class="form-control"
-                       value="@Context.Request.Query["endDate"]">
+                <div class="form-floating">
+                    <input type="date" name="endDate" id="endDate" class="form-control"
+                           value="@Context.Request.Query["endDate"]">
+                    <label for="endDate">End Date</label>
+                </div>
             </div>
 
             <div class="col-md-12 mt-3">

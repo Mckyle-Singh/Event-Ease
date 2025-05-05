@@ -95,12 +95,42 @@ namespace Event_Ease.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string searchQuery,string venueId, DateTime? bookingDate)
         {
-            var bookings = await dbContext.Bookings.Include(e=> e.Event).ThenInclude(v=>v.Venue).ToListAsync();
-            return View(bookings);
-        }
+            var bookingsQuery = dbContext.Bookings
+            .Include(b => b.Event)
+            .ThenInclude(e => e.Venue)
+            .AsQueryable();
 
+            // Filter by Event Name
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                bookingsQuery = bookingsQuery.Where(b => b.Event.EventName.Contains(searchQuery));
+            }
+
+            // Filter by Booking Date
+            if (bookingDate.HasValue)
+            {
+                bookingsQuery = bookingsQuery.Where(b => b.BookingDate.Date == bookingDate.Value.Date);
+            }
+
+            // Filter by venue (parse GUID safely)
+            if (Guid.TryParse(venueId, out Guid venueGuid))
+            {
+                bookingsQuery = bookingsQuery.Where(b => b.Event.Venue.VenueID == venueGuid);
+            }
+
+            ViewBag.Venues = dbContext.Venues
+                .Select(v => new SelectListItem
+                {
+                    Value = v.VenueID.ToString(),
+                    Text = v.VenueName
+                })
+                .ToList();
+
+            var filteredBookings = await bookingsQuery.ToListAsync();
+            return View(filteredBookings);
+        }
 
         [HttpGet] 
         public async Task<IActionResult> Edit(Guid id)
