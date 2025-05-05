@@ -13,6 +13,13 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -31,31 +38,42 @@
 
 <!-- Filter Section -->
 <div class="container mb-4">
-    <div class="row">
-        <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="Search by name">
+    <form method="get">
+        <div class="row">
+            <div class="col-md-3">
+                <input type="text" name="searchQuery" class="form-control" placeholder="Search by name"
+                       value="@Context.Request.Query["searchQuery"]">
+            </div>
+
+            <div class="col-md-3">
+                <select name="venueId" class="form-control">
+                    <option value="">Filter by venue</option>
+                    @foreach (var venue in ViewBag.Venues ?? new List<SelectListItem>())
+                    {
+                        <option value="@venue.Value">@venue.Text</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <input type="date" name="startDate" class="form-control"
+                       value="@Context.Request.Query["startDate"]">
+            </div>
+
+            <div class="col-md-3">
+                <input type="date" name="endDate" class="form-control"
+                       value="@Context.Request.Query["endDate"]">
+            </div>
+
+            <div class="col-md-12 mt-3">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="/Events/List" class="btn btn-secondary">Clear Filters</a>
+            </div>
         </div>
-        <div class="col-md-4">
-            <select class="form-control">
-                <option selected disabled>Filter by location</option>
-                <option>New York</option>
-                <option>Los Angeles</option>
-                <option>Chicago</option>
-                <option>Miami</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <select class="form-control">
-                <option selected disabled>Filter by capacity</option>
-                <option>1-100</option>
-                <option>101-500</option>
-                <option>501-1000</option>
-                <option>1001+</option>
-            </select>
-        </div>
-    </div>
+    </form>
 </div>
 
+<!-- Event Listing Table -->
 <div class="table-responsive shadow rounded">
     <table class="table table-hover table-bordered align-middle text-center">
         <thead class="table-dark">

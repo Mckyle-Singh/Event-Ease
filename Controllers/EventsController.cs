@@ -54,11 +54,36 @@ namespace Event_Ease.Controllers
 
         }
 
+        // Show the event list with filtering
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string searchQuery, Guid? venueId, DateTime? startDate, DateTime? endDate)
         {
-            var UserEvents = await dbContext.Events.Include(e=>e.Venue).ToListAsync();
-            return View(UserEvents);
+            var eventsQuery = dbContext.Events.Include(e => e.Venue).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                eventsQuery = eventsQuery.Where(e => e.EventName.Contains(searchQuery));
+            }
+
+            if (venueId.HasValue)
+            {
+                eventsQuery = eventsQuery.Where(e => e.VenueID == venueId.Value);
+            }
+
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                eventsQuery = eventsQuery.Where(e => e.EventStartDate >= startDate.Value && e.EventEndDate <= endDate.Value);
+            }
+
+            var filteredEvents = await eventsQuery.ToListAsync();
+
+            // 🔹 Populate venue list for filtering dropdown
+            ViewBag.Venues = dbContext.Venues.Select(v => new SelectListItem
+            {
+                Value = v.VenueID.ToString(),
+                Text = v.VenueName
+            }).ToList();
+            return View(filteredEvents);
         }
 
         [HttpGet]
