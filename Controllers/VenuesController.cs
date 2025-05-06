@@ -79,6 +79,7 @@ namespace Event_Ease.Controllers
             {
                 venuesQuery = venuesQuery.Where(v => v.Location == location);
             }
+            
             var venues = await venuesQuery.ToListAsync();
            
             return View(venues);
