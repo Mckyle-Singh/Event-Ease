@@ -1,5 +1,6 @@
 ﻿@model List<Event_Ease.Models.Entities.Venue>
 
+
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -15,7 +16,7 @@
     </div>
 }
 
-<!-- Add Jumbotron Section -->
+<!-- Jumbotron Section -->
 <div class="jumbotron jumbotron-fluid text-center bg-light p-4 mb-4">
     <div class="container">
         <h1 class="display-4">All Venues</h1>
@@ -23,35 +24,47 @@
     </div>
 </div>
 
-   
-<!-- Filter Section -->
+<!-- Filter & Search Form -->
 <div class="container mb-4">
-    <div class="row">
-        <div class="col-md-4">
-            <input type="text" class="form-control" placeholder="Search by name">
+    <form method="get">
+        <div class="row">
+            <!-- Search by name -->
+            <div class="col-md-4">
+                <input type="text" name="searchQuery" class="form-control" placeholder="Search by name"
+                       value="@Context.Request.Query["searchQuery"]">
+            </div>
+
+            <!-- Filter by location -->
+            <div class="col-md-4">
+                <select name="location" class="form-control">
+                    <option value="">Filter by location</option>
+                    <option value="Port Elizabeth">Port Elizabeth</option>
+                    <option value="Cape Town">Cape Town</option>
+                    <option value="Durban">Durban</option>
+                    <option value="Johannesburg">Johannesburg</option>
+                </select>
+            </div>
+
+            <!-- Filter by capacity -->
+            <div class="col-md-4">
+                <select name="minCapacity" class="form-control">
+                    <option value="">Filter by capacity</option>
+                    <option value="1" data-max="50">1-50</option>
+                    <option value="51" data-max="100">51-100</option>
+                    <option value="101" data-max="200">101-200</option>
+                    <option value="200">200+</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mt-2">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="/Venues/List" class="btn btn-danger">Clear Filters</a>
+            </div>
         </div>
-        <div class="col-md-4">
-            <select class="form-control">
-                <option selected disabled>Filter by location</option>
-                <option>New York</option>
-                <option>Los Angeles</option>
-                <option>Chicago</option>
-                <option>Miami</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <select class="form-control">
-                <option selected disabled>Filter by capacity</option>
-                <option>1-100</option>
-                <option>101-500</option>
-                <option>501-1000</option>
-                <option>1001+</option>
-            </select>
-        </div>
-    </div>
+    </form>
 </div>
 
-<!-- Card Section -->
+<!-- Venue Cards -->
 <div class="container">
     <div class="row">
         @foreach (var venue in Model)
@@ -79,4 +92,3 @@
             </div>
         }
     </div>
-</div>

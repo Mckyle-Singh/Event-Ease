@@ -47,11 +47,36 @@ namespace Event_Ease.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> List()
+        public async Task<IActionResult> List(string searchQuery, string location, int? minCapacity, int? maxCapacity)
         {
-          var venues =  await dbContext.Venues.ToListAsync();
+            var venuesQuery = dbContext.Venues.AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                venuesQuery = venuesQuery.Where(v => v.VenueName.Contains(searchQuery));
+            }
+
+            if (minCapacity.HasValue)
+            {
+                switch (minCapacity.Value)
+                {
+                    case 1:
+                        venuesQuery = venuesQuery.Where(v => v.Capacity >= 1 && v.Capacity <= 50);
+                        break;
+                    case 51:
+                        venuesQuery = venuesQuery.Where(v => v.Capacity >= 51 && v.Capacity <= 100);
+                        break;
+                    case 101:
+                        venuesQuery = venuesQuery.Where(v => v.Capacity >= 101 && v.Capacity <= 200);
+                        break;
+                    case 200:
+                        venuesQuery = venuesQuery.Where(v => v.Capacity >= 200); // "200+" case
+                        break;
+                }
+            }
+            var venues = await venuesQuery.ToListAsync();
            
-          return View(venues);
+            return View(venues);
         }
 
         [HttpGet]
