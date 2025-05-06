@@ -74,6 +74,11 @@ namespace Event_Ease.Controllers
                         break;
                 }
             }
+            // Filter by exact location (from dropdown)
+            if (!string.IsNullOrWhiteSpace(location))
+            {
+                venuesQuery = venuesQuery.Where(v => v.Location == location);
+            }
             var venues = await venuesQuery.ToListAsync();
            
             return View(venues);
