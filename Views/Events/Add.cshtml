@@ -6,6 +6,13 @@
 
 @model Event_Ease.Models.ViewModels.AddEventViewModel
 
+@if (!string.IsNullOrEmpty(ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage
+    </div>
+}
+
 <head>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js"></script>

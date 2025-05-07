@@ -6,6 +6,13 @@
 
 @model Event_Ease.Models.Entities.Event
 
+@if (!string.IsNullOrEmpty(ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @ViewData.ModelState[""]?.Errors.FirstOrDefault()?.ErrorMessage
+    </div>
+}
+
 <h1>Edit Event</h1>
 
 <form method="post">
