@@ -173,7 +173,7 @@ namespace Event_Ease.Controllers
                 dbContext.Bookings.Remove(booking);
                 await dbContext.SaveChangesAsync();
             }
-
+            TempData["SuccessMessage"] = "Booking successfully deleted.";
             return RedirectToAction("List", "Bookings");
         }
 
