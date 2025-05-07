@@ -36,7 +36,48 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddEventViewModel viewModel)
         {
-   
+            // Validate: End date must not be before start date
+            if (viewModel.EventEndDate < viewModel.EventStartDate)
+            {
+                ModelState.AddModelError("", "End date cannot be earlier than the start date.");
+
+                // Reload dropdown list
+                viewModel.Venues = await dbContext.Venues
+                    .Select(v => new SelectListItem
+                    {
+                        Value = v.VenueID.ToString(),
+                        Text = v.VenueName
+                    }).ToListAsync();
+
+                return View(viewModel);
+            }
+
+            // Validate: Check for booking conflict at the venue
+
+            if (viewModel.VenueID.HasValue)
+            {
+                bool isVenueBooked = await dbContext.Events
+                    .AnyAsync(e =>
+                        e.VenueID == viewModel.VenueID &&
+                        e.EventStartDate <= viewModel.EventEndDate &&
+                        e.EventEndDate >= viewModel.EventStartDate);
+
+                if (isVenueBooked)
+                {
+                    ModelState.AddModelError("", "This venue already has a scheduled event for the selected dates.");
+
+                    // Reload dropdown list
+                    viewModel.Venues = await dbContext.Venues
+                        .Select(v => new SelectListItem
+                        {
+                            Value = v.VenueID.ToString(),
+                            Text = v.VenueName
+                        }).ToListAsync();
+
+                    return View(viewModel);
+                }
+            }
+
             // Save the event if validation passes
             var Userevent = new Event
             {
@@ -49,6 +90,8 @@ namespace Event_Ease.Controllers
 
             await dbContext.Events.AddAsync(Userevent);
             await dbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Event successfully created.";
 
             return RedirectToAction("List", "Events");
 
