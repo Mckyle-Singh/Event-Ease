@@ -9,10 +9,7 @@ namespace Event_Ease.Models.ViewModels
         public string Location { get; set; }
         public int Capacity { get; set; }
 
-        [Required(ErrorMessage = "Image URL is required.")]
-        [Url(ErrorMessage = "Please enter a valid URL.")]
-        [Display(Name = "Venue Image URL")]
-        public string ImageUrl { get; set; }
+        public IFormFile ImageFile { get; set; } // user uploads this
 
         public string Description { get; set; }
 
