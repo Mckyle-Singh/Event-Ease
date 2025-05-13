@@ -1,6 +1,7 @@
 ﻿using Event_Ease.Data;
 using Event_Ease.Models.Entities;
 using Event_Ease.Models.ViewModels;
+using Event_Ease.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,10 +10,14 @@ namespace Event_Ease.Controllers
     public class VenuesController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        public VenuesController(ApplicationDbContext dbContext)
+        private readonly IBlobStorageService _blobService;
+        private readonly string _containerName;
+        public VenuesController(ApplicationDbContext dbContext, IBlobStorageService blobService, IConfiguration configuration)
         {
           
             this.dbContext = dbContext;
+            _blobService = blobService;
+            _containerName = configuration["AzureBlobStorage:ContainerName"];
         }
 
         [HttpGet]
@@ -26,23 +31,34 @@ namespace Event_Ease.Controllers
         {
             if (!ModelState.IsValid)
             {
-                // Return the view with the validation errors
                 return View(viewModel);
             }
 
+            string imageUrl = null;
+
+            if (viewModel.ImageFile?.Length > 0)
+            {
+                // Upload image to Azure Blob Storage
+                imageUrl = await _blobService.UploadFileAsync(viewModel.ImageFile, _containerName);
+            }
+
+            // Fallback image if none was uploaded
+            imageUrl ??= "https://picsum.photos/200/300";
+
             var venue = new Venue
             {
+                VenueID = Guid.NewGuid(),
                 VenueName = viewModel.VenueName,
-                Capacity = viewModel.Capacity,
                 Location = viewModel.Location,
-                ImageUrl = viewModel.ImageUrl,
+                Capacity = viewModel.Capacity,
+                ImageUrl = imageUrl,
                 Description = viewModel.Description,
-                IsActive = viewModel.IsActive,
+                IsActive = viewModel.IsActive
             };
 
-            await dbContext.Venues.AddAsync(venue);
+            dbContext.Venues.Add(venue);
             await dbContext.SaveChangesAsync();
-            
+
             return RedirectToAction("List", "Venues");
         }
 
