@@ -32,5 +32,15 @@ namespace Event_Ease.Services
 
             return blobClient.Uri.ToString();
         }
+
+        // Delete a file from Azure Blob Storage
+        public async Task DeleteFileAsync(string fileUrl, string containerName)
+        {
+            var blobServiceClient = new BlobServiceClient(_blobSettings.ConnectionString);
+            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(fileUrl));  // Get the file name from URL
+
+            await blobClient.DeleteIfExistsAsync();  // Delete the blob if it exists
+        }
     }
 }

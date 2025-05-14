@@ -202,8 +202,8 @@ namespace Event_Ease.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var venue = await dbContext.Venues
-        .Include(v => v.Bookings) // Ensure Bookings are included in the query
-        .FirstOrDefaultAsync(v => v.VenueID == id);
+            .Include(v => v.Bookings) // Ensure Bookings are included in the query
+            .FirstOrDefaultAsync(v => v.VenueID == id);
 
             // Check if venue is null
             if (venue == null)
@@ -217,6 +217,23 @@ namespace Event_Ease.Controllers
             {
                 TempData["ErrorMessage"] = "Cannot delete a venue linked to active bookings.";
                 return RedirectToAction("List", "Venues"); // Redirect back to the list view
+            }
+
+            // Check if the venue has an associated image and delete it from Blob Storage
+            if (!string.IsNullOrEmpty(venue.ImageUrl))
+            {
+                try
+                {
+                    string containerName = "venue-images";
+                    // Call your BlobService to delete the image from Blob Storage
+                    await _blobService.DeleteFileAsync(venue.ImageUrl,containerName); // Assumes you have a method for deleting the image
+                }
+                catch (Exception ex)
+                {
+                    // Handle any errors that may occur during the blob deletion process
+                    TempData["ErrorMessage"] = $"An error occurred while deleting the image: {ex.Message}";
+                    return RedirectToAction("List", "Venues");
+                }
             }
 
             // Proceed with deletion
