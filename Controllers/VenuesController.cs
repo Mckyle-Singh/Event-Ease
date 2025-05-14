@@ -1,18 +1,27 @@
 ﻿using Event_Ease.Data;
 using Event_Ease.Models.Entities;
 using Event_Ease.Models.ViewModels;
+using Event_Ease.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
 
 namespace Event_Ease.Controllers
 {
     public class VenuesController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        public VenuesController(ApplicationDbContext dbContext)
+        private readonly IBlobStorageService _blobService;
+        private readonly string _containerName;
+
+        public VenuesController(ApplicationDbContext dbContext, IBlobStorageService blobService, IConfiguration configuration)
         {
           
             this.dbContext = dbContext;
+            _blobService = blobService;
+            _containerName = configuration["AzureBlobStorage:ContainerName"];
         }
 
         [HttpGet]
@@ -24,25 +33,43 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddVenueViewModel viewModel)
         {
+         
             if (!ModelState.IsValid)
             {
-                // Return the view with the validation errors
+                Console.WriteLine("ModelState is invalid. Validation errors:");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"- {error.ErrorMessage}");
+                }
                 return View(viewModel);
             }
 
+            string imageUrl = null;
+
+            if (viewModel.ImageFile?.Length > 0)
+            {
+                // Upload image to Azure Blob Storage
+                Console.WriteLine($"ImageFile is null? {viewModel.ImageFile == null}");
+                imageUrl = await _blobService.UploadFileAsync(viewModel.ImageFile, _containerName);
+            }
+
+            // Fallback image if none was uploaded
+            imageUrl ??= "https://picsum.photos/200/300";
+       
             var venue = new Venue
             {
+                VenueID = Guid.NewGuid(),
                 VenueName = viewModel.VenueName,
-                Capacity = viewModel.Capacity,
                 Location = viewModel.Location,
-                ImageUrl = viewModel.ImageUrl,
+                Capacity = viewModel.Capacity,
+                ImageUrl = imageUrl,
                 Description = viewModel.Description,
-                IsActive = viewModel.IsActive,
+                IsActive = viewModel.IsActive
             };
 
-            await dbContext.Venues.AddAsync(venue);
+            dbContext.Venues.Add(venue);
             await dbContext.SaveChangesAsync();
-            
+
             return RedirectToAction("List", "Venues");
         }
 
@@ -90,48 +117,120 @@ namespace Event_Ease.Controllers
         {
            var venue = await dbContext.Venues.FindAsync(id);
 
-            return View(venue);
+            if (venue == null)
+                return NotFound();
+
+            var viewModel = new AddVenueViewModel
+            {
+                VenueID = venue.VenueID,
+                VenueName = venue.VenueName,
+                Location = venue.Location,
+                Capacity = venue.Capacity,
+                ImageUrl = venue.ImageUrl,
+                Description = venue.Description,
+                IsActive = venue.IsActive
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Venue viewModel)
+        public async Task<IActionResult> Edit(AddVenueViewModel viewModel)
         {
-           var venue= await dbContext.Venues.FindAsync(viewModel.VenueID);
 
-            if(venue is not null)
+            if (!ModelState.IsValid)
             {
-                venue.VenueName = viewModel.VenueName;
-                venue.Location = viewModel.Location;
-                venue.ImageUrl = viewModel.ImageUrl;
-                venue.Description = viewModel.Description;
-                venue.IsActive = viewModel.IsActive;
-                venue.Capacity = viewModel.Capacity;
+                // Log all validation errors to the console
+                Console.WriteLine("ModelState is invalid. Validation errors:");
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"- {state.Key}: {error.ErrorMessage}");
+                    }
+                }
 
-                await dbContext.SaveChangesAsync();
+                return View(viewModel);
             }
 
-            return RedirectToAction("List","Venues");
+            var venue = await dbContext.Venues.FindAsync(viewModel.VenueID);
+            if (venue == null)
+            {
+                Console.WriteLine("Venue not found.");
+                return NotFound();
+            }
+
+            // Upload new image if one is provided
+            if (viewModel.ImageFile?.Length > 0)
+            {
+                try
+                {
+                    var imageUrl = await _blobService.UploadFileAsync(viewModel.ImageFile, _containerName);
+                    venue.ImageUrl = imageUrl;
+                    Console.WriteLine($"Uploaded new image: {imageUrl}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Image upload failed: {ex.Message}");
+                    ModelState.AddModelError("ImageFile", "Image upload failed.");
+                    return View(viewModel);
+                }
+            }
+            else
+            {
+                // No new image uploaded — preserve existing one
+                venue.ImageUrl = viewModel.ImageUrl;
+                Console.WriteLine("No new image uploaded. Keeping existing image.");
+            }
+
+            // Update other fields
+            venue.VenueName = viewModel.VenueName;
+            venue.Location = viewModel.Location;
+            venue.Capacity = viewModel.Capacity;
+            venue.Description = viewModel.Description;
+            venue.IsActive = viewModel.IsActive;
+
+            await dbContext.SaveChangesAsync();
+            Console.WriteLine("Venue updated successfully.");
+
+            return RedirectToAction("List", "Venues");
         }
 
         [HttpPost]
         public async Task<IActionResult> Delete(Guid id)
         {
             var venue = await dbContext.Venues
-        .Include(v => v.Bookings) // Ensure Bookings are included in the query
-        .FirstOrDefaultAsync(v => v.VenueID == id);
+            .Include(v => v.Bookings) 
+            .FirstOrDefaultAsync(v => v.VenueID == id);
 
             // Check if venue is null
             if (venue == null)
             {
                 TempData["ErrorMessage"] = "Venue not found.";
-                return RedirectToAction("List", "Venues"); // Redirect back to the list view
+                return RedirectToAction("List", "Venues"); 
             }
 
             // Check if venue has active bookings
             if (venue.Bookings.Any())
             {
                 TempData["ErrorMessage"] = "Cannot delete a venue linked to active bookings.";
-                return RedirectToAction("List", "Venues"); // Redirect back to the list view
+                return RedirectToAction("List", "Venues"); 
+            }
+
+            // Check if the venue has an associated image and delete it from Blob Storage
+            if (!string.IsNullOrEmpty(venue.ImageUrl))
+            {
+                try
+                {
+                    string containerName = "venue-images";
+                    // Call BlobService to delete the image from Blob Storage
+                    await _blobService.DeleteFileAsync(venue.ImageUrl,containerName); 
+                }
+                catch (Exception ex)
+                {
+                    // Handle any errors that may occur during the blob deletion process
+                    TempData["ErrorMessage"] = $"An error occurred while deleting the image: {ex.Message}";
+                    return RedirectToAction("List", "Venues");
+                }
             }
 
             // Proceed with deletion
@@ -139,7 +238,7 @@ namespace Event_Ease.Controllers
             await dbContext.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Venue successfully deleted.";
-            return RedirectToAction("List", "Venues"); // Redirect back to the list view
+            return RedirectToAction("List", "Venues"); 
         }
 
     }

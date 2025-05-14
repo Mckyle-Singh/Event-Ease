@@ -1,5 +1,9 @@
 using Event_Ease.Data;
+using Event_Ease.Infra;
+using Event_Ease.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics.Metrics;
 
 namespace Event_Ease
 {
@@ -15,6 +19,16 @@ namespace Event_Ease
             //Inject db context
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+
+            // Inject AzureBlobStorage settings
+            builder.Services.Configure<AzureBlobStorageSettings>(
+                builder.Configuration.GetSection("AzureBlobStorage")
+            );
+
+            // Inject the blob storage service
+            builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+
+            
 
             var app = builder.Build();
 
