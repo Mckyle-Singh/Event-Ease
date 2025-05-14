@@ -2,6 +2,8 @@ using Event_Ease.Data;
 using Event_Ease.Infra;
 using Event_Ease.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics.Metrics;
 
 namespace Event_Ease
 {
@@ -25,6 +27,8 @@ namespace Event_Ease
 
             // Inject the blob storage service
             builder.Services.AddScoped<IBlobStorageService, BlobStorageService>();
+
+            
 
             var app = builder.Build();
 

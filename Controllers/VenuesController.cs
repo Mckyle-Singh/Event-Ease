@@ -4,6 +4,9 @@ using Event_Ease.Models.ViewModels;
 using Event_Ease.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
 
 namespace Event_Ease.Controllers
 {
@@ -12,6 +15,7 @@ namespace Event_Ease.Controllers
         private readonly ApplicationDbContext dbContext;
         private readonly IBlobStorageService _blobService;
         private readonly string _containerName;
+
         public VenuesController(ApplicationDbContext dbContext, IBlobStorageService blobService, IConfiguration configuration)
         {
           
@@ -29,8 +33,14 @@ namespace Event_Ease.Controllers
         [HttpPost]
         public async Task<IActionResult> Add(AddVenueViewModel viewModel)
         {
+         
             if (!ModelState.IsValid)
             {
+                Console.WriteLine("ModelState is invalid. Validation errors:");
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine($"- {error.ErrorMessage}");
+                }
                 return View(viewModel);
             }
 
@@ -39,11 +49,15 @@ namespace Event_Ease.Controllers
             if (viewModel.ImageFile?.Length > 0)
             {
                 // Upload image to Azure Blob Storage
+                Console.WriteLine($"ImageFile is null? {viewModel.ImageFile == null}");
                 imageUrl = await _blobService.UploadFileAsync(viewModel.ImageFile, _containerName);
             }
 
             // Fallback image if none was uploaded
             imageUrl ??= "https://picsum.photos/200/300";
+            // Log the ImageUrl to the console to verify its value
+            Console.WriteLine($"Image URL: {imageUrl}"); // Console log for debugging
+            Debug.WriteLine($"Image URL: {imageUrl}"); // If you use Visual Studio, this will appear in the Output window
 
             var venue = new Venue
             {
