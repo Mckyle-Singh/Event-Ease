@@ -55,10 +55,7 @@ namespace Event_Ease.Controllers
 
             // Fallback image if none was uploaded
             imageUrl ??= "https://picsum.photos/200/300";
-            // Log the ImageUrl to the console to verify its value
-            Console.WriteLine($"Image URL: {imageUrl}"); // Console log for debugging
-            Debug.WriteLine($"Image URL: {imageUrl}"); // If you use Visual Studio, this will appear in the Output window
-
+       
             var venue = new Venue
             {
                 VenueID = Guid.NewGuid(),
@@ -129,7 +126,7 @@ namespace Event_Ease.Controllers
                 VenueName = venue.VenueName,
                 Location = venue.Location,
                 Capacity = venue.Capacity,
-                ImageUrl = venue.ImageUrl, // Show existing image
+                ImageUrl = venue.ImageUrl,
                 Description = venue.Description,
                 IsActive = venue.IsActive
             };
@@ -202,21 +199,21 @@ namespace Event_Ease.Controllers
         public async Task<IActionResult> Delete(Guid id)
         {
             var venue = await dbContext.Venues
-            .Include(v => v.Bookings) // Ensure Bookings are included in the query
+            .Include(v => v.Bookings) 
             .FirstOrDefaultAsync(v => v.VenueID == id);
 
             // Check if venue is null
             if (venue == null)
             {
                 TempData["ErrorMessage"] = "Venue not found.";
-                return RedirectToAction("List", "Venues"); // Redirect back to the list view
+                return RedirectToAction("List", "Venues"); 
             }
 
             // Check if venue has active bookings
             if (venue.Bookings.Any())
             {
                 TempData["ErrorMessage"] = "Cannot delete a venue linked to active bookings.";
-                return RedirectToAction("List", "Venues"); // Redirect back to the list view
+                return RedirectToAction("List", "Venues"); 
             }
 
             // Check if the venue has an associated image and delete it from Blob Storage
@@ -225,8 +222,8 @@ namespace Event_Ease.Controllers
                 try
                 {
                     string containerName = "venue-images";
-                    // Call your BlobService to delete the image from Blob Storage
-                    await _blobService.DeleteFileAsync(venue.ImageUrl,containerName); // Assumes you have a method for deleting the image
+                    // Call BlobService to delete the image from Blob Storage
+                    await _blobService.DeleteFileAsync(venue.ImageUrl,containerName); 
                 }
                 catch (Exception ex)
                 {
@@ -241,7 +238,7 @@ namespace Event_Ease.Controllers
             await dbContext.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Venue successfully deleted.";
-            return RedirectToAction("List", "Venues"); // Redirect back to the list view
+            return RedirectToAction("List", "Venues"); 
         }
 
     }

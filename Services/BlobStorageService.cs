@@ -38,9 +38,9 @@ namespace Event_Ease.Services
         {
             var blobServiceClient = new BlobServiceClient(_blobSettings.ConnectionString);
             var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
-            var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(fileUrl));  // Get the file name from URL
+            var blobClient = blobContainerClient.GetBlobClient(Path.GetFileName(fileUrl));  
 
-            await blobClient.DeleteIfExistsAsync();  // Delete the blob if it exists
+            await blobClient.DeleteIfExistsAsync();
         }
     }
 }

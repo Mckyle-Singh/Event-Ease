@@ -3,6 +3,6 @@
     public interface IBlobStorageService
     {
         Task<string> UploadFileAsync(IFormFile file, string containerName);
-        Task DeleteFileAsync(string fileUrl, string containerName);  // Method to delete a file
+        Task DeleteFileAsync(string fileUrl, string containerName); 
     }
 }
