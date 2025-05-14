@@ -120,27 +120,82 @@ namespace Event_Ease.Controllers
         {
            var venue = await dbContext.Venues.FindAsync(id);
 
-            return View(venue);
+            if (venue == null)
+                return NotFound();
+
+            var viewModel = new AddVenueViewModel
+            {
+                VenueID = venue.VenueID,
+                VenueName = venue.VenueName,
+                Location = venue.Location,
+                Capacity = venue.Capacity,
+                ImageUrl = venue.ImageUrl, // Show existing image
+                Description = venue.Description,
+                IsActive = venue.IsActive
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Venue viewModel)
+        public async Task<IActionResult> Edit(AddVenueViewModel viewModel)
         {
-           var venue= await dbContext.Venues.FindAsync(viewModel.VenueID);
 
-            if(venue is not null)
+            if (!ModelState.IsValid)
             {
-                venue.VenueName = viewModel.VenueName;
-                venue.Location = viewModel.Location;
-                venue.ImageUrl = viewModel.ImageUrl;
-                venue.Description = viewModel.Description;
-                venue.IsActive = viewModel.IsActive;
-                venue.Capacity = viewModel.Capacity;
+                // Log all validation errors to the console
+                Console.WriteLine("ModelState is invalid. Validation errors:");
+                foreach (var state in ModelState)
+                {
+                    foreach (var error in state.Value.Errors)
+                    {
+                        Console.WriteLine($"- {state.Key}: {error.ErrorMessage}");
+                    }
+                }
 
-                await dbContext.SaveChangesAsync();
+                return View(viewModel);
             }
 
-            return RedirectToAction("List","Venues");
+            var venue = await dbContext.Venues.FindAsync(viewModel.VenueID);
+            if (venue == null)
+            {
+                Console.WriteLine("Venue not found.");
+                return NotFound();
+            }
+
+            // Upload new image if one is provided
+            if (viewModel.ImageFile?.Length > 0)
+            {
+                try
+                {
+                    var imageUrl = await _blobService.UploadFileAsync(viewModel.ImageFile, _containerName);
+                    venue.ImageUrl = imageUrl;
+                    Console.WriteLine($"Uploaded new image: {imageUrl}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Image upload failed: {ex.Message}");
+                    ModelState.AddModelError("ImageFile", "Image upload failed.");
+                    return View(viewModel);
+                }
+            }
+            else
+            {
+                // No new image uploaded — preserve existing one
+                venue.ImageUrl = viewModel.ImageUrl;
+                Console.WriteLine("No new image uploaded. Keeping existing image.");
+            }
+
+            // Update other fields
+            venue.VenueName = viewModel.VenueName;
+            venue.Location = viewModel.Location;
+            venue.Capacity = viewModel.Capacity;
+            venue.Description = viewModel.Description;
+            venue.IsActive = viewModel.IsActive;
+
+            await dbContext.SaveChangesAsync();
+            Console.WriteLine("Venue updated successfully.");
+
+            return RedirectToAction("List", "Venues");
         }
 
         [HttpPost]
